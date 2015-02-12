@@ -1,6 +1,0 @@
---local-bl
-  api api.10.244.0.34.xip.io --skip-ssl-validation
-  auth admin admin
---boshlite
-  api http://api.10.244.0.34.xip.io --skip-ssl-validation
-  auth admin admin

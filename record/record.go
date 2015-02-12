@@ -7,10 +7,15 @@ import (
 	"strings"
 
 	"github.com/cloudfoundry/cli/plugin"
+	"github.com/simonleung8/cli-recorder/data"
 )
 
 type RecordCmd interface {
 	Record(string)
+	ListCmdSets()
+	ClearCmdSets()
+	ListCmds(string)
+	DeleteCmdSet(string)
 }
 
 type recordCmd struct {
@@ -25,25 +30,63 @@ func NewRecordCmd(cli plugin.CliConnection) RecordCmd {
 	}
 }
 
+func (r *recordCmd) ListCmdSets() {
+	fmt.Println("The following command sets are available:")
+	fmt.Println("=========================================")
+
+	d := data.NewCmdSetData()
+	cmdsets := d.ListCmdSetNames()
+
+	for _, name := range cmdsets {
+		fmt.Println(name)
+	}
+	fmt.Println()
+}
+
+func (r *recordCmd) ListCmds(cmdset string) {
+	fmt.Printf("The following commands are in %s:\n", cmdset)
+	fmt.Println("=========================================")
+
+	d := data.NewCmdSetData()
+	cmds := d.GetCmdSet(cmdset)
+
+	for _, cmd := range cmds {
+		fmt.Println(cmd)
+	}
+	fmt.Println()
+}
+
 func (r *recordCmd) Record(cmdsetName string) {
 	var cmd string
 	var err error
+	d := data.NewCmdSetData()
 
 	r.name = strings.TrimSpace(cmdsetName)
+
+	if d.IsCmdExist(r.name) {
+		fmt.Printf("\nThe name %s already exists, please use another ...\n\n", r.name)
+		return
+	}
+
 	fmt.Printf(`Please start entering CF commands
 For example: 'cf api http://api.10.244.0.34.xip.io --skip-ssl-validation'
 
-type 'stop' to stop recording
+type 'stop' to stop recording and save
+type 'quit' to quit recording without saving
 
 `)
 
 	for {
-		fmt.Print("> ")
+		fmt.Printf("\n(recording) >> ")
 		in := bufio.NewReader(os.Stdin)
 		cmd, err = in.ReadString('\n')
 		if err != nil {
 			fmt.Println("Error: ", err)
 			os.Exit(1)
+		}
+
+		if strings.TrimSpace(cmd) == "quit" {
+			return
 		}
 
 		if strings.TrimSpace(cmd) == "stop" {
@@ -59,26 +102,17 @@ type 'stop' to stop recording
 		}
 	}
 
-	r.writeFile()
+	d.SaveCmdSet(r.name, r.cmdset)
 }
 
-func (r *recordCmd) writeFile() {
-	f, err := os.OpenFile("./CmdSetRecords", os.O_RDWR|os.O_APPEND, 0660)
-	if err != nil {
-		quitWithError("Error writing to file: ", err)
-	}
-	defer f.Close()
+func (r *recordCmd) DeleteCmdSet(cmdset string) {
+	d := data.NewCmdSetData()
+	d.DeleteCmdSet(cmdset)
+}
 
-	if _, err = f.WriteString("--" + r.name + "\n"); err != nil {
-		quitWithError("Error writing to file: ", err)
-	}
-
-	for _, str := range r.cmdset {
-		if _, err = f.WriteString("  " + str + "\n"); err != nil {
-			quitWithError("Error writing to file: ", err)
-		}
-	}
-
+func (r *recordCmd) ClearCmdSets() {
+	d := data.NewCmdSetData()
+	d.ClearCmdSets()
 }
 
 func validCfCmd(cmd string) bool {
@@ -86,9 +120,4 @@ func validCfCmd(cmd string) bool {
 		return true
 	}
 	return false
-}
-
-func quitWithError(msg string, err error) {
-	fmt.Println(msg, err)
-	os.Exit(1)
 }
