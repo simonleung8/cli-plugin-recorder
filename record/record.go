@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/cloudfoundry/cli/plugin"
-	"github.com/simonleung8/cli-recorder/data"
+	"github.com/simonleung8/cli-plugin-recorder/data"
 )
 
 type RecordCmd interface {

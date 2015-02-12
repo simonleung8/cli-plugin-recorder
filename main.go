@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/cloudfoundry/cli/plugin"
-	"github.com/simonleung8/cli-recorder/record"
-	"github.com/simonleung8/cli-recorder/replay"
+	"github.com/simonleung8/cli-plugin-recorder/record"
+	"github.com/simonleung8/cli-plugin-recorder/replay"
 )
 
 type CLI_Recorder struct{}
