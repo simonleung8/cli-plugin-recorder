@@ -13,6 +13,11 @@ type CLI_Recorder struct{}
 func (c *CLI_Recorder) GetMetadata() plugin.PluginMetadata {
 	return plugin.PluginMetadata{
 		Name: "CLI-Recorder",
+		Version: plugin.VersionType{
+			Major: 1,
+			Minor: 0,
+			Build: 0,
+		},
 		Commands: []plugin.Command{
 			{
 				Name:     "record",
@@ -30,6 +35,7 @@ Options:
 			},
 			{
 				Name:     "replay",
+				Alias:    "rp",
 				HelpText: "replay a set of recorded CLI commands",
 				UsageDetails: plugin.Usage{
 					Usage: "replay [COMMAND SET NAME]",
