@@ -32,6 +32,7 @@ $ cf replay <name>
 
 #####Install from Source (need to have [Go](http://golang.org/dl/) installed)
   ```
+  $ go get github.com/cloudfoundry/cli
   $ go get github.com/simonleung8/cli-plugin-recorder
   $ cd $GOPATH/src/github.com/simonleung8/cli-plugin-recorder
   $ go build -o cli-recorder main.go
