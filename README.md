@@ -4,7 +4,6 @@ This plugin records sets of CF CLI commands, and allows you to playback a set or
 
 
 ##Usage
-=====
 ```
 $ cf record <name>
 
@@ -12,7 +11,7 @@ $ cf record <name>
 >> {enter cf commands as usual} ..
 >> stop
 ```
-After recording, play back with `replay`, it allows playing back 1 or more recorded command sets.
+After recording, play back with `replay`, you can play back 1 or more recorded command sets.
 ```
 $ cf replay <name>
 ```
