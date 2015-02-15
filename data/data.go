@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -156,12 +157,24 @@ func (c *cmdSetData) DeleteCmdSet(cmdsetName string) {
 }
 
 func getFilePath() string {
-	fp := filepath.Join(os.Getenv("HOME"), ".cf", "plugins")
+	fp := filepath.Join(userHomeDir(), ".cf", "plugins")
 	if os.Getenv("CF_PLUGIN_HOME") != "" {
 		fp = filepath.Join(os.Getenv("CF_PLUGIN_HOME"), ".cf", "plugins")
 	}
 
 	return filepath.Join(fp, "CmdSetRecords")
+}
+
+func userHomeDir() string {
+	if runtime.GOOS == "windows" {
+		home := os.Getenv("HOMEDIRVE") + os.Getenv("HOMEPATH")
+		if home == "" {
+			home = os.Getenv("USERPROFILE")
+		}
+		return home
+	}
+
+	return os.Getenv("HOME")
 }
 
 func getAllData() ([]byte, error) {
