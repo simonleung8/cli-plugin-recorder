@@ -19,7 +19,7 @@ $ cf replay <name>
 ##Installation
 #####Install from CLI (v.6.10.0 and up)
   ```
-  $ cf repo-plugins
+  $ cf add-plugin-repo CF-Community http://plugins.cloudfoundry.org/
   $ cf install-plugin CLI-Recorder -r CF-Community
   ```
   
