@@ -27,7 +27,7 @@ func (c *CLI_Recorder) GetMetadata() plugin.PluginMetadata {
 
 Options:
 -l : to list all the record command sets
--n : to list all commands withint a set
+-n : to list all commands within a set
 -d : to delete a command set
 -clear : clear all record commands
 `,
