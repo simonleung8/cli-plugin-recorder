@@ -24,15 +24,15 @@ func (c *CLI_Recorder) GetMetadata() plugin.PluginMetadata {
 		Commands: []plugin.Command{
 			{
 				Name:     "record",
-				HelpText: "record a set of CLI commands",
+				HelpText: "record a set of CLI commands for playback",
 				UsageDetails: plugin.Usage{
-					Usage: `record [COMMAND_SET_NAME] | --list | -n COMMAND_SET_NAME | -d COMMAND_SET_NAME | --clear
+					Usage: `record COMMAND_SET_NAME | OPTIONS 
 
-Options:
-    -n  : to list all commands within a set
-    -d  : to delete a command set
- --list : to list all the record command sets
---clear : clear all record commands
+OPTIONS:
+  -n            list all commands within a set
+  -d            delete a command set
+  --list, -l    list all recorded command sets
+  --clear, -c   clear all recorded commands
 `,
 				},
 			},
@@ -41,7 +41,7 @@ Options:
 				Alias:    "rp",
 				HelpText: "replay a set of recorded CLI commands",
 				UsageDetails: plugin.Usage{
-					Usage: "replay [COMMAND SET NAME]",
+					Usage: "replay COMMAND_SET_NAME",
 				},
 			},
 		},
@@ -55,11 +55,10 @@ func main() {
 func (c *CLI_Recorder) Run(cliConnection plugin.CliConnection, args []string) {
 	if args[0] == "record" {
 		fc := flags.New()
-		fc.NewBoolFlag("l", "list all the recorded command sets")
-		fc.NewBoolFlag("list", "list all the recorded command sets")
-		fc.NewBoolFlag("clear", "clear all record command sets")
-		fc.NewStringFlag("n", "list all commands within a set. Usage: -n COMMAND_SET_NAME")
-		fc.NewStringFlag("d", "to delete a command set. Usage: -d COMMAND_SET_NAME")
+		fc.NewBoolFlag("list", "l", "list all recorded command sets")
+		fc.NewBoolFlag("clear", "c", "clear all recorded command sets")
+		fc.NewStringFlag("n", "", "list all commands within a set (e.g. -n COMMAND_SET_NAME)")
+		fc.NewStringFlag("d", "", "to delete a command set (e.g. -d COMMAND_SET_NAME)")
 		err := fc.Parse(args[1:]...)
 		if err != nil {
 			fmt.Println("Error:", err)
