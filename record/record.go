@@ -19,14 +19,18 @@ type RecordCmd interface {
 }
 
 type recordCmd struct {
-	name   string
-	cli    plugin.CliConnection
-	cmdset []string
+	name        string
+	cli         plugin.CliConnection
+	cmdset      []string
+	cmdSetData  data.CmdSetData
+	inputStream *os.File
 }
 
-func NewRecordCmd(cli plugin.CliConnection) RecordCmd {
+func NewRecordCmd(cli plugin.CliConnection, cmdSetData data.CmdSetData, inputStream *os.File) RecordCmd {
 	return &recordCmd{
-		cli: cli,
+		cli:         cli,
+		cmdSetData:  cmdSetData,
+		inputStream: inputStream,
 	}
 }
 
@@ -34,8 +38,7 @@ func (r *recordCmd) ListCmdSets() {
 	fmt.Println("The following command sets are available:")
 	fmt.Println("=========================================")
 
-	d := data.NewCmdSetData()
-	cmdsets := d.ListCmdSetNames()
+	cmdsets := r.cmdSetData.ListCmdSetNames()
 
 	for _, name := range cmdsets {
 		fmt.Println(name)
@@ -47,8 +50,7 @@ func (r *recordCmd) ListCmds(cmdset string) {
 	fmt.Printf("The following commands are in %s:\n", cmdset)
 	fmt.Println("=========================================")
 
-	d := data.NewCmdSetData()
-	cmds := d.GetCmdSet(cmdset)
+	cmds := r.cmdSetData.GetCmdSet(cmdset)
 
 	for _, cmd := range cmds {
 		fmt.Println(cmd)
@@ -59,11 +61,10 @@ func (r *recordCmd) ListCmds(cmdset string) {
 func (r *recordCmd) Record(cmdsetName string) {
 	var cmd string
 	var err error
-	d := data.NewCmdSetData()
 
 	r.name = strings.TrimSpace(cmdsetName)
 
-	if d.IsCmdExist(r.name) {
+	if r.cmdSetData.IsCmdExist(r.name) {
 		fmt.Printf("\nThe name %s already exists, please use another ...\n\n", r.name)
 		return
 	}
@@ -78,7 +79,7 @@ type 'quit' to quit recording without saving
 
 	for {
 		fmt.Printf("\n(recording) >> ")
-		in := bufio.NewReader(os.Stdin)
+		in := bufio.NewReader(r.inputStream)
 		cmd, err = in.ReadString('\n')
 		if err != nil {
 			fmt.Println("Error: ", err)
@@ -102,17 +103,27 @@ type 'quit' to quit recording without saving
 		}
 	}
 
-	d.SaveCmdSet(r.name, r.cmdset)
+	r.cmdSetData.SaveCmdSet(r.name, r.cmdset)
 }
 
 func (r *recordCmd) DeleteCmdSet(cmdset string) {
-	d := data.NewCmdSetData()
-	d.DeleteCmdSet(cmdset)
+	r.cmdSetData.DeleteCmdSet(cmdset)
 }
 
 func (r *recordCmd) ClearCmdSets() {
-	d := data.NewCmdSetData()
-	d.ClearCmdSets()
+	fmt.Print("WARNING: You are about to delete all recorded command sets (y or n): ")
+	in := bufio.NewReader(r.inputStream)
+	response, err := in.ReadString('\n')
+	if err != nil {
+		fmt.Println("Error: ", err)
+	}
+
+	if strings.TrimSpace(response) == "y" {
+		r.cmdSetData.ClearCmdSets()
+		fmt.Println("All recorded command sets has been removed")
+	} else {
+		fmt.Println("Action aborted.")
+	}
 }
 
 func validCfCmd(cmd string) bool {

@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/cloudfoundry/cli/plugin"
+	"github.com/simonleung8/cli-plugin-recorder/data"
 	"github.com/simonleung8/cli-plugin-recorder/record"
 	"github.com/simonleung8/cli-plugin-recorder/replay"
 
@@ -19,7 +20,7 @@ func (c *CLI_Recorder) GetMetadata() plugin.PluginMetadata {
 		Version: plugin.VersionType{
 			Major: 1,
 			Minor: 0,
-			Build: 1,
+			Build: 2,
 		},
 		Commands: []plugin.Command{
 			{
@@ -29,8 +30,8 @@ func (c *CLI_Recorder) GetMetadata() plugin.PluginMetadata {
 					Usage: `record COMMAND_SET_NAME | OPTIONS 
 
 OPTIONS:
-  -n            list all commands within a set
-  -d            delete a command set
+  -n            list all commands within a set (e.g. -n COMMAND_SET_NAME)
+  -d            delete a command set (e.g. -d COMMAND_SET_NAME)
   --list, -l    list all recorded command sets
   --clear, -c   clear all recorded commands
 `,
@@ -41,7 +42,11 @@ OPTIONS:
 				Alias:    "rp",
 				HelpText: "replay a set of recorded CLI commands",
 				UsageDetails: plugin.Usage{
-					Usage: "replay COMMAND_SET_NAME",
+					Usage: `replay COMMAND_SET_NAME | OPTIONS
+					
+OPTIONS:
+  --list, -l    list all recorded command sets
+`,
 				},
 			},
 		},
@@ -53,7 +58,9 @@ func main() {
 }
 
 func (c *CLI_Recorder) Run(cliConnection plugin.CliConnection, args []string) {
-	if args[0] == "record" {
+	if args[0] == "CLI-MESSAGE-UNINSTALL" {
+
+	} else if args[0] == "record" {
 		fc := flags.New()
 		fc.NewBoolFlag("list", "l", "list all recorded command sets")
 		fc.NewBoolFlag("clear", "c", "clear all recorded command sets")
@@ -65,19 +72,32 @@ func (c *CLI_Recorder) Run(cliConnection plugin.CliConnection, args []string) {
 			os.Exit(1)
 		}
 
-		runRecord(cliConnection, fc)
+		c.runRecord(cliConnection, fc)
+
 	} else if args[0] == "replay" {
-		if len(args) > 1 {
-			p := replay.NewReplayCmds(cliConnection, args[1:]...)
+		fc := flags.New()
+		fc.NewBoolFlag("list", "l", "list all recorded command sets")
+		err := fc.Parse(args[1:]...)
+		if err != nil {
+			fmt.Println("Error:", err)
+			os.Exit(1)
+		}
+
+		if fc.Bool("l") || fc.Bool("list") {
+			r := record.NewRecordCmd(cliConnection, data.NewCmdSetData(), os.Stdin)
+			r.ListCmdSets()
+		} else if len(args) > 1 {
+			p := replay.NewReplayCmds(cliConnection, data.NewCmdSetData(), args[1:]...)
 			p.Run()
 		} else {
 			fmt.Println("Provide the recorded command set name to playback")
+			fmt.Printf("\nUSAGE:\n  %s\n", c.GetMetadata().Commands[1].UsageDetails.Usage)
 		}
 	}
 }
 
-func runRecord(cliConnection plugin.CliConnection, fc flags.FlagContext) {
-	r := record.NewRecordCmd(cliConnection)
+func (c *CLI_Recorder) runRecord(cliConnection plugin.CliConnection, fc flags.FlagContext) {
+	r := record.NewRecordCmd(cliConnection, data.NewCmdSetData(), os.Stdin)
 	if fc.Bool("l") || fc.Bool("list") {
 		r.ListCmdSets()
 	} else if fc.Bool("clear") {
@@ -89,6 +109,7 @@ func runRecord(cliConnection plugin.CliConnection, fc flags.FlagContext) {
 	} else if len(fc.Args()) == 1 {
 		r.Record(fc.Args()[0])
 	} else {
-		fmt.Println("Provide the recorded command set name to playback")
+		fmt.Println("Provide command set name for recording")
+		fmt.Printf("\nUSAGE:\n  %s\n", c.GetMetadata().Commands[0].UsageDetails.Usage)
 	}
 }

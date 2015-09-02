@@ -13,22 +13,22 @@ type ReplayCmds interface {
 }
 
 type replayCmds struct {
-	cli     plugin.CliConnection
-	cmdsets []string
+	cli        plugin.CliConnection
+	cmdsets    []string
+	cmdSetData data.CmdSetData
 }
 
-func NewReplayCmds(cli plugin.CliConnection, cmdsets ...string) ReplayCmds {
+func NewReplayCmds(cli plugin.CliConnection, cmdSetData data.CmdSetData, cmdsets ...string) ReplayCmds {
 	return &replayCmds{
-		cli:     cli,
-		cmdsets: cmdsets,
+		cli:        cli,
+		cmdsets:    cmdsets,
+		cmdSetData: cmdSetData,
 	}
 }
 
 func (p *replayCmds) Run() {
-	c := data.NewCmdSetData()
-
 	for _, cmdset := range p.cmdsets {
-		cmds := c.GetCmdSet(cmdset)
+		cmds := p.cmdSetData.GetCmdSet(cmdset)
 
 		if len(cmds) == 0 {
 			fmt.Printf("Command set %s not found.\n\n", cmdset)

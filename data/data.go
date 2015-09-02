@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+//go:generate counterfeiter -o data_fakes/fake_data.go . CmdSetData
 type CmdSetData interface {
 	GetCmdSet(string) []string
 	SaveCmdSet(string, []string)
@@ -97,12 +98,14 @@ func (c *cmdSetData) SaveCmdSet(cmdsetName string, cmdset []string) {
 	fp := getFilePath()
 	_, err := os.Stat(fp)
 	if err != nil && !os.IsExist(err) {
+		err = nil
 		f, err = os.Create(fp)
 	} else {
 		f, err = os.OpenFile(fp, os.O_RDWR|os.O_APPEND, 0660)
 	}
+
 	if err != nil {
-		quitWithError("Error writing to file: ", err)
+		quitWithError("Error opening file: ", err)
 	}
 	defer f.Close()
 
@@ -124,8 +127,6 @@ func (c *cmdSetData) ClearCmdSets() {
 		fmt.Println("Error removing file: ", err)
 		os.Exit(1)
 	}
-
-	fmt.Println("All record command sets has be removed")
 }
 
 func (c *cmdSetData) DeleteCmdSet(cmdsetName string) {
