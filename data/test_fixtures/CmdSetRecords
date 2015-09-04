@@ -1,0 +1,7 @@
+--cmdSet1
+  api api.sample.com
+  auth admin admin
+  create-org test-org
+--cmdSet2
+  target -o public -s public
+  apps
