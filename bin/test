@@ -1,0 +1,6 @@
+GODEP=$(which godep)
+
+export GOPATH=$($GODEP path):$GOPATH
+
+echo -e "\nTesting packages..."
+ginkgo -r 
