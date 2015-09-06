@@ -1,4 +1,4 @@
-CF CLI Recorder
+CF CLI Recorder [![Build Status](https://travis-ci.org/simonleung8/cli-plugin-recorder.png?branch=master)](https://travis-ci.org/simonleung8/cli-plugin-recorder)
 =================
 This plugin records sets of CF CLI commands, and allows you to playback a set or sets commands anytime.
 
