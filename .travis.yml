@@ -5,6 +5,9 @@ install:
   - go get -v golang.org/x/tools/cmd/vet
   - go get -v github.com/onsi/ginkgo/ginkgo
   - go get -v github.com/onsi/gomega
+  - go get -v github.com/cloudfoundry/cli/plugin
+  - go get -v github.com/cloudfoundry/cli/testhelpers
+  - go get -v github.com/simonleung8/flags
 script:  
   - go vet ./...
   - ginkgo -r
