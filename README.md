@@ -50,3 +50,10 @@ $ cf replay <name>
 |`record -clear`|`cf record -clear`|delete all recorded command sets|
 |`replay`|`cf replay <Cmd_Name...>`|replay a command set or sets|
 |`rp`|`cf rp <Cmd_Name...>`|alias of `replay`|
+
+##Help Command
+
+| command | usage | description|
+| :--------------- |:---------------| :------------|
+|`record -h`| `cf record -h` |show `record` usage|
+
