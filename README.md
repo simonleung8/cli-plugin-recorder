@@ -56,4 +56,5 @@ $ cf replay <name>
 | command | usage | description|
 | :--------------- |:---------------| :------------|
 |`record -h`| `cf record -h` |show `record` usage|
+|`rp -h`| `cf rp -h` |show `rp`/`replay` usage|
 
